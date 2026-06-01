@@ -204,3 +204,45 @@ body {
 }
 .btn-play:active { transform: scale(0.9); }
 .btn-play.is-playing { background: var(--accent); color: #fff; }
+.phrase-card { cursor: pointer; } /* вся карточка кликабельна → полный экран */
+
+/* ===== Полноэкранный показ фразы ===== */
+.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+.fullscreen[hidden] { display: none; }
+.fs-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.fs-ru { font-size: 21px; color: var(--muted); margin-bottom: 22px; max-width: 90%; }
+.fs-zh {
+  font-size: clamp(64px, 22vw, 300px);
+  font-weight: 700;
+  color: #111;
+  line-height: 1.1;
+  word-break: break-all;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+}
+.fs-zh.short { font-size: clamp(96px, 34vw, 360px); }
+.fs-read { font-size: 23px; color: var(--ink); margin-bottom: 28px; }
+.fs-play { width: 64px; height: 64px; font-size: 28px; }
+.fs-hint { position: absolute; bottom: 28px; font-size: 13px; color: var(--muted); }

@@ -43,6 +43,16 @@
     <div id="phrases-list" class="phrases-list"></div>
   </section>
 
+  <!-- Полноэкранный показ фразы (для показа собеседнику) -->
+  <div id="fullscreen" class="fullscreen" hidden>
+    <button id="fs-close" class="fs-close" aria-label="Закрыть">✕</button>
+    <div class="fs-ru" id="fs-ru"></div>
+    <div class="fs-zh" id="fs-zh"></div>
+    <div class="fs-read" id="fs-read"></div>
+    <button class="btn-play fs-play" id="fs-play" aria-label="Озвучить">🔊</button>
+    <div class="fs-hint">Нажмите на пустое место, чтобы закрыть</div>
+  </div>
+
   <script src="data/phrases.js"></script>
   <script src="app.js"></script>
 </body>

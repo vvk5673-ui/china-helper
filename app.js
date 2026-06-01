@@ -14,6 +14,12 @@
   var offlineBadge = document.getElementById("offline-badge");
   var searchInput = document.getElementById("search-input");
   var searchResults = document.getElementById("search-results");
+  var fullscreen = document.getElementById("fullscreen");
+  var fsRu = document.getElementById("fs-ru");
+  var fsZh = document.getElementById("fs-zh");
+  var fsRead = document.getElementById("fs-read");
+  var fsPlay = document.getElementById("fs-play");
+  var fsClose = document.getElementById("fs-close");
 
   var SECTIONS = window.SECTIONS || [];
 
@@ -71,10 +77,37 @@
     card.innerHTML = html;
     var btn = card.querySelector(".btn-play");
     if (btn) {
-      btn.addEventListener("click", function () { playPhrase(btn); });
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation(); // не открывать полный экран при нажатии 🔊
+        playPhrase(btn);
+      });
     }
+    // тап по карточке — показать фразу на весь экран
+    card.addEventListener("click", function () { openFullscreen(p); });
     return card;
   }
+
+  // ===== Полноэкранный показ фразы =====
+  function openFullscreen(p) {
+    fsRu.textContent = p.ru;
+    fsZh.textContent = p.zh;
+    fsZh.classList.toggle("short", p.zh.length <= 4);
+    fsRead.textContent = p.read || "";
+    if (p.pinyin) {
+      fsPlay.style.display = "";
+      fsPlay.setAttribute("data-id", p.id);
+      fsPlay.setAttribute("data-zh", p.zh);
+    } else {
+      fsPlay.style.display = "none"; // справочные записи (адреса/номера) — без озвучки
+    }
+    fullscreen.hidden = false;
+  }
+  function closeFullscreen() { fullscreen.hidden = true; }
+
+  fsClose.addEventListener("click", function (e) { e.stopPropagation(); closeFullscreen(); });
+  fsPlay.addEventListener("click", function (e) { e.stopPropagation(); playPhrase(fsPlay); });
+  // клик по пустому месту оверлея — закрыть
+  fullscreen.addEventListener("click", closeFullscreen);
 
   // ===== Экран 2: открываем раздел со фразами =====
   function openSection(section) {
