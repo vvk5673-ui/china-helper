@@ -2,7 +2,7 @@
 // При установке кладёт основные файлы в кэш. Дальше отдаёт из кэша,
 // а недостающее (например mp3-озвучку) подкачивает и сохраняет.
 
-var CACHE = "china-helper-v5";
+var CACHE = "china-helper-v6";
 
 // Файлы ядра, которые кэшируем сразу при установке
 var CORE = [
@@ -52,23 +52,42 @@ self.addEventListener("activate", function (event) {
   );
 });
 
-// Запросы: сначала кэш, потом сеть (а сетевой ответ дописываем в кэш)
+// Стратегия запросов:
+//  - аудио и иконки НЕ меняются → отдаём из кэша (быстро), иначе из сети
+//  - код/данные/страница → сначала СЕТЬ (свежая версия), кэш только при оффлайне
+// Так обновления долетают сразу, а без интернета (в Китае) всё работает из кэша.
 self.addEventListener("fetch", function (event) {
   if (event.request.method !== "GET") return;
+  var url = event.request.url;
+  var isStatic = url.indexOf("/audio/") >= 0 || url.indexOf("/assets/") >= 0 || url.endsWith(".mp3");
+
+  if (isStatic) {
+    // cache-first для неизменных ресурсов
+    event.respondWith(
+      caches.match(event.request).then(function (cached) {
+        return cached || fetch(event.request).then(function (resp) {
+          if (resp && resp.status === 200) {
+            var copy = resp.clone();
+            caches.open(CACHE).then(function (cache) { cache.put(event.request, copy); });
+          }
+          return resp;
+        });
+      })
+    );
+    return;
+  }
+
+  // network-first для кода/данных/навигации
   event.respondWith(
-    caches.match(event.request).then(function (cached) {
-      if (cached) return cached;
-      return fetch(event.request).then(function (resp) {
-        // сохраняем удачные ответы того же origin (включая mp3)
-        if (resp && resp.status === 200 && resp.type === "basic") {
-          var copy = resp.clone();
-          caches.open(CACHE).then(function (cache) {
-            cache.put(event.request, copy);
-          });
-        }
-        return resp;
-      }).catch(function () {
-        // оффлайн и нет в кэше — для навигации отдаём главную
+    fetch(event.request).then(function (resp) {
+      if (resp && resp.status === 200 && resp.type === "basic") {
+        var copy = resp.clone();
+        caches.open(CACHE).then(function (cache) { cache.put(event.request, copy); });
+      }
+      return resp;
+    }).catch(function () {
+      return caches.match(event.request).then(function (cached) {
+        if (cached) return cached;
         if (event.request.mode === "navigate") return caches.match("index.html");
       });
     })
