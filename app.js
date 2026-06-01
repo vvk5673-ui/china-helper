@@ -12,8 +12,18 @@
   var sectionTitle = document.getElementById("section-title");
   var btnBack = document.getElementById("btn-back");
   var offlineBadge = document.getElementById("offline-badge");
+  var searchInput = document.getElementById("search-input");
+  var searchResults = document.getElementById("search-results");
 
   var SECTIONS = window.SECTIONS || [];
+
+  // плоский список всех фраз (для поиска), с названием раздела
+  var ALL_PHRASES = [];
+  SECTIONS.forEach(function (s) {
+    s.phrases.forEach(function (p) {
+      ALL_PHRASES.push({ p: p, section: s.title });
+    });
+  });
 
   // ===== Экран 1: рисуем плитки разделов =====
   function renderHome() {
@@ -32,47 +42,92 @@
     });
   }
 
+  // ===== Создание карточки фразы (используется и в разделе, и в поиске) =====
+  function buildPhraseCard(p, sectionLabel) {
+    var card = document.createElement("div");
+    card.className = "phrase-card";
+
+    // строка «озвучить» показываем только если есть пиньинь (т.е. это фраза, а не справка)
+    var hasAudio = !!p.pinyin;
+
+    var html = "";
+    if (sectionLabel) {
+      html += '<div class="result-section">' + escapeHtml(sectionLabel) + "</div>";
+    }
+    html +=
+      '<p class="phrase-ru">' + escapeHtml(p.ru) + "</p>" +
+      '<p class="phrase-zh">' + escapeHtml(p.zh) + "</p>" +
+      '<div class="phrase-meta">' +
+        '<div>' +
+          '<div class="phrase-read">' + escapeHtml(p.read) + "</div>" +
+          (p.pinyin ? '<div class="phrase-pinyin">' + escapeHtml(p.pinyin) + "</div>" : "") +
+        "</div>";
+    if (hasAudio) {
+      html += '<button class="btn-play" data-id="' + p.id + '" data-zh="' +
+        escapeAttr(p.zh) + '" aria-label="Озвучить">🔊</button>';
+    }
+    html += "</div>";
+
+    card.innerHTML = html;
+    var btn = card.querySelector(".btn-play");
+    if (btn) {
+      btn.addEventListener("click", function () { playPhrase(btn); });
+    }
+    return card;
+  }
+
   // ===== Экран 2: открываем раздел со фразами =====
   function openSection(section) {
     sectionTitle.textContent = section.title;
     phrasesList.innerHTML = "";
-
     section.phrases.forEach(function (p) {
-      var card = document.createElement("div");
-      card.className = "phrase-card";
-
-      // строка «озвучить» показываем только если есть пиньинь (т.е. это фраза, а не справка)
-      var hasAudio = !!p.pinyin;
-
-      var html =
-        '<p class="phrase-ru">' + escapeHtml(p.ru) + "</p>" +
-        '<p class="phrase-zh">' + escapeHtml(p.zh) + "</p>" +
-        '<div class="phrase-meta">' +
-          '<div>' +
-            '<div class="phrase-read">' + escapeHtml(p.read) + "</div>" +
-            (p.pinyin ? '<div class="phrase-pinyin">' + escapeHtml(p.pinyin) + "</div>" : "") +
-          "</div>";
-
-      if (hasAudio) {
-        html += '<button class="btn-play" data-id="' + p.id + '" data-zh="' +
-          escapeAttr(p.zh) + '" aria-label="Озвучить">🔊</button>';
-      }
-      html += "</div>";
-
-      card.innerHTML = html;
-      phrasesList.appendChild(card);
+      phrasesList.appendChild(buildPhraseCard(p));
     });
-
-    // вешаем озвучку на кнопки
-    var buttons = phrasesList.querySelectorAll(".btn-play");
-    buttons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        playPhrase(btn);
-      });
-    });
-
     showScreen(screenSection);
     window.scrollTo(0, 0);
+  }
+
+  // совпадение с допуском к русским окончаниям (вода → найдёт «воду»)
+  function matchText(text, q) {
+    text = (text || "").toLowerCase();
+    if (text.indexOf(q) >= 0) return true;
+    // ищем по корню: запрос без последних 1-2 букв (окончание)
+    if (q.length >= 4 && text.indexOf(q.slice(0, q.length - 1)) >= 0) return true;
+    if (q.length >= 6 && text.indexOf(q.slice(0, q.length - 2)) >= 0) return true;
+    return false;
+  }
+
+  // ===== Поиск по всем фразам =====
+  function onSearch() {
+    var q = searchInput.value.trim().toLowerCase();
+    if (!q) {
+      // пусто — показываем плитки разделов
+      searchResults.hidden = true;
+      searchResults.innerHTML = "";
+      sectionsGrid.style.display = "";
+      return;
+    }
+    sectionsGrid.style.display = "none";
+    searchResults.hidden = false;
+    searchResults.innerHTML = "";
+
+    var found = ALL_PHRASES.filter(function (it) {
+      return matchText(it.p.ru, q) || matchText(it.p.read, q);
+    });
+
+    if (found.length === 0) {
+      var note = document.createElement("div");
+      note.className = "search-note";
+      note.textContent = "Ничего не найдено. Попробуйте другое слово.";
+      searchResults.appendChild(note);
+      return;
+    }
+    found.forEach(function (it) {
+      searchResults.appendChild(buildPhraseCard(it.p, it.section));
+    });
+  }
+  if (searchInput) {
+    searchInput.addEventListener("input", onSearch);
   }
 
   // ===== Озвучка фразы =====

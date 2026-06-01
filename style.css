@@ -51,6 +51,32 @@ body {
   color: var(--muted);
 }
 
+/* ===== Поиск ===== */
+.search-box {
+  padding: 4px 16px 6px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.search-input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  font-size: 16px; /* 16px — чтобы iOS не зумил при фокусе */
+  color: var(--ink);
+  outline: none;
+  box-shadow: var(--shadow);
+}
+.search-input:focus { border-color: var(--accent); }
+.search-note { text-align: center; color: var(--muted); padding: 30px 16px; }
+.result-section {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
 /* ===== Сетка разделов ===== */
 .sections-grid {
   display: grid;

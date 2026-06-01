@@ -23,7 +23,12 @@
       <h1 class="app-title">Помощник в Китае</h1>
       <p class="app-sub">Покажите экран собеседнику или нажмите 🔊</p>
     </header>
+    <div class="search-box">
+      <input id="search-input" class="search-input" type="search" inputmode="search"
+             placeholder="Поиск фразы — напр. вода, такси, болит" autocomplete="off">
+    </div>
     <div id="sections-grid" class="sections-grid"></div>
+    <div id="search-results" class="phrases-list" hidden></div>
     <footer class="app-foot">
       <span id="offline-badge" class="offline-badge">● Готово к работе оффлайн</span>
     </footer>
