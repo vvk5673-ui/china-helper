@@ -2,7 +2,7 @@
 // При установке кладёт основные файлы в кэш. Дальше отдаёт из кэша,
 // а недостающее (например mp3-озвучку) подкачивает и сохраняет.
 
-var CACHE = "china-helper-v1";
+var CACHE = "china-helper-v2";
 
 // Файлы ядра, которые кэшируем сразу при установке
 var CORE = [
@@ -17,13 +17,23 @@ var CORE = [
   "assets/icon-512.png",
 ];
 
-// Установка: складываем ядро в кэш
+// Подтягиваем данные фраз, чтобы собрать список всех mp3 для оффлайна
+try { importScripts("data/phrases.js"); } catch (e) { /* список аудио будет пустым */ }
+
+var AUDIO = (typeof SECTIONS !== "undefined" ? SECTIONS : [])
+  .reduce(function (acc, s) { return acc.concat(s.phrases); }, [])
+  .filter(function (p) { return p.pinyin; })           // озвучка есть только у фраз с пиньинем
+  .map(function (p) { return "audio/" + p.id + ".mp3"; });
+
+var PRECACHE = CORE.concat(AUDIO);
+
+// Установка: складываем ядро + всю озвучку в кэш (для полного оффлайна)
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE).then(function (cache) {
       // addAll упадёт, если хоть один файл недоступен, поэтому кладём по одному
       return Promise.all(
-        CORE.map(function (url) {
+        PRECACHE.map(function (url) {
           return cache.add(url).catch(function () { /* пропускаем отсутствующее */ });
         })
       );
