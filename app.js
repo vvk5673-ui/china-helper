@@ -164,41 +164,19 @@
   }
 
   // ===== Озвучка фразы =====
-  // Этап 8: пробуем готовый mp3 (audio/<id>.mp3), которого пока нет —
-  // поэтому временно подстраховываемся встроенным голосом iOS (Web Speech API).
-  // На Этапе 10 положим настоящие mp3 китайским голосом.
+  // Проигрываем готовый mp3 (audio/<id>.mp3) — они китайским голосом и
+  // сохраняются для оффлайна. Системный голос НЕ используем: он прочитал бы
+  // иероглифы чужим голосом как мусор и сбил бы с толку. Нет mp3 → просто тишина.
   function playPhrase(btn) {
     var id = btn.getAttribute("data-id");
-    var zh = btn.getAttribute("data-zh");
 
     btn.classList.add("is-playing");
     var done = function () { btn.classList.remove("is-playing"); };
 
     var audio = new Audio("audio/" + id + ".mp3");
     audio.addEventListener("ended", done);
-    audio.addEventListener("error", function () {
-      // mp3 ещё нет — пробуем системный синтезатор речи
-      speak(zh, done);
-    });
-    audio.play().catch(function () {
-      speak(zh, done);
-    });
-  }
-
-  // Временный фоллбек: системный синтез речи (если доступен китайский голос)
-  function speak(text, done) {
-    if (!("speechSynthesis" in window)) { done(); return; }
-    try {
-      window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(text);
-      u.lang = "zh-CN";
-      u.rate = 0.85;
-      u.onend = done;
-      u.onerror = done;
-      window.speechSynthesis.speak(u);
-    } catch (e) {
-      done();
-    }
+    audio.addEventListener("error", done);
+    audio.play().catch(done);
   }
 
   // ===== Навигация между экранами =====
