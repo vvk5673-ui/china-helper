@@ -135,6 +135,17 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Подсказка про транскрипцию (честно: произношение примерное) */
+.read-hint {
+  margin: 0;
+  padding: 10px 18px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--muted);
+  background: var(--accent-soft);
+  text-align: center;
+}
+
 /* ===== Список фраз ===== */
 .phrases-list {
   padding: 14px 16px 40px;
