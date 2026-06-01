@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#ffffff">
+  <title>Помощник в Китае</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Китай">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ЭКРАН 1: список разделов -->
+  <section id="screen-home" class="screen is-active">
+    <header class="app-header">
+      <h1 class="app-title">Помощник в Китае</h1>
+      <p class="app-sub">Покажите экран собеседнику или нажмите 🔊</p>
+    </header>
+    <div id="sections-grid" class="sections-grid"></div>
+    <footer class="app-foot">
+      <span id="offline-badge" class="offline-badge">● Готово к работе оффлайн</span>
+    </footer>
+  </section>
+
+  <!-- ЭКРАН 2: фразы внутри раздела -->
+  <section id="screen-section" class="screen">
+    <header class="sub-header">
+      <button id="btn-back" class="btn-back" aria-label="Назад">‹ Назад</button>
+      <h2 id="section-title" class="section-title"></h2>
+    </header>
+    <div id="phrases-list" class="phrases-list"></div>
+  </section>
+
+  <script src="data/phrases.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

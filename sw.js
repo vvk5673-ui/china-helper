@@ -1,0 +1,66 @@
+// Service worker — делает приложение «Помощник в Китае» оффлайн.
+// При установке кладёт основные файлы в кэш. Дальше отдаёт из кэша,
+// а недостающее (например mp3-озвучку) подкачивает и сохраняет.
+
+var CACHE = "china-helper-v1";
+
+// Файлы ядра, которые кэшируем сразу при установке
+var CORE = [
+  "./",
+  "index.html",
+  "style.css",
+  "app.js",
+  "data/phrases.js",
+  "manifest.json",
+  "assets/icon-180.png",
+  "assets/icon-192.png",
+  "assets/icon-512.png",
+];
+
+// Установка: складываем ядро в кэш
+self.addEventListener("install", function (event) {
+  event.waitUntil(
+    caches.open(CACHE).then(function (cache) {
+      // addAll упадёт, если хоть один файл недоступен, поэтому кладём по одному
+      return Promise.all(
+        CORE.map(function (url) {
+          return cache.add(url).catch(function () { /* пропускаем отсутствующее */ });
+        })
+      );
+    }).then(function () { return self.skipWaiting(); })
+  );
+});
+
+// Активация: чистим старые версии кэша
+self.addEventListener("activate", function (event) {
+  event.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys.map(function (k) { if (k !== CACHE) return caches.delete(k); })
+      );
+    }).then(function () { return self.clients.claim(); })
+  );
+});
+
+// Запросы: сначала кэш, потом сеть (а сетевой ответ дописываем в кэш)
+self.addEventListener("fetch", function (event) {
+  if (event.request.method !== "GET") return;
+  event.respondWith(
+    caches.match(event.request).then(function (cached) {
+      if (cached) return cached;
+      return fetch(event.request).then(function (resp) {
+        // сохраняем удачные ответы того же origin (включая mp3)
+        if (resp && resp.status === 200 && resp.type === "basic") {
+          var copy = resp.clone();
+          caches.open(CACHE).then(function (cache) {
+            cache.put(event.request, copy);
+          });
+        }
+        return resp;
+      }).catch(function () {
+        // оффлайн и нет в кэше — для навигации отдаём главную
+        if (event.request.mode === "navigate") return caches.match("index.html");
+      });
+    })
+  );
+});
