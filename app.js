@@ -18,6 +18,7 @@
   var fsRu = document.getElementById("fs-ru");
   var fsZh = document.getElementById("fs-zh");
   var fsRead = document.getElementById("fs-read");
+  var fsPinyin = document.getElementById("fs-pinyin");
   var fsPlay = document.getElementById("fs-play");
   var fsClose = document.getElementById("fs-close");
 
@@ -56,23 +57,23 @@
     // строка «озвучить» показываем только если есть пиньинь (т.е. это фраза, а не справка)
     var hasAudio = !!p.pinyin;
 
+    // подстрока «русский · транскрипция» (транскрипция только если есть)
+    var sub = '<span class="sub-ru">' + escapeHtml(p.ru) + "</span>" +
+              (p.read ? ' · ' + escapeHtml(p.read) : "");
+
     var html = "";
     if (sectionLabel) {
       html += '<div class="result-section">' + escapeHtml(sectionLabel) + "</div>";
     }
     html +=
-      '<p class="phrase-ru">' + escapeHtml(p.ru) + "</p>" +
-      '<p class="phrase-zh">' + escapeHtml(p.zh) + "</p>" +
-      '<div class="phrase-meta">' +
-        '<div>' +
-          '<div class="phrase-read">' + escapeHtml(p.read) + "</div>" +
-          (p.pinyin ? '<div class="phrase-pinyin">' + escapeHtml(p.pinyin) + "</div>" : "") +
-        "</div>";
+      '<div class="phrase-body">' +
+        '<div class="phrase-zh">' + escapeHtml(p.zh) + "</div>" +
+        '<div class="phrase-sub">' + sub + "</div>" +
+      "</div>";
     if (hasAudio) {
       html += '<button class="btn-play" data-id="' + p.id + '" data-zh="' +
         escapeAttr(p.zh) + '" aria-label="Озвучить">🔊</button>';
     }
-    html += "</div>";
 
     card.innerHTML = html;
     var btn = card.querySelector(".btn-play");
@@ -93,6 +94,7 @@
     fsZh.textContent = p.zh;
     fsZh.classList.toggle("short", p.zh.length <= 4);
     fsRead.textContent = p.read || "";
+    fsPinyin.textContent = p.pinyin || "";
     if (p.pinyin) {
       fsPlay.style.display = "";
       fsPlay.setAttribute("data-id", p.id);

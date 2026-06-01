@@ -155,58 +155,52 @@ body {
   flex-direction: column;
   gap: 9px;
 }
+/* Компактная горизонтальная карточка: иероглифы + «русский · транскрипция» + 🔊 */
 .phrase-card {
   background: var(--card);
   border-radius: 14px;
   box-shadow: var(--shadow);
-  padding: 11px 14px;
+  padding: 9px 14px;
   max-width: 100%;
-  overflow: hidden; /* страховка: ничего не вылезает за карточку */
-}
-.phrase-ru {
-  font-size: 14px;
-  color: var(--muted);
-  margin: 0 0 3px;
-  overflow-wrap: anywhere;
-}
-.phrase-zh {
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: 0.02em;
-  margin: 0 0 4px;
-  word-break: break-all; /* иероглифы и длинные адреса переносятся в любом месте */
-}
-.phrase-meta {
+  overflow: hidden;
   display: flex;
+  flex-wrap: wrap;          /* тег раздела (в поиске) уходит на строку сверху */
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 3px 14px;
+  cursor: pointer;          /* вся карточка кликабельна → полный экран */
 }
-/* текстовый блок должен уметь сжиматься, иначе длинные строки раздувают карточку */
-.phrase-meta > div:first-child {
-  min-width: 0;
-  flex: 1 1 auto;
+.result-section {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 0;
 }
-.phrase-read {
-  font-size: 14px;
-  color: var(--ink);
-  overflow-wrap: anywhere;
+.phrase-body { flex: 1 1 auto; min-width: 0; }
+.phrase-zh {
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  margin: 0 0 1px;
+  word-break: break-all;    /* длинные адреса переносятся */
 }
-.phrase-pinyin {
+.phrase-sub {
   font-size: 13px;
   color: var(--muted);
-  font-style: italic;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
+.phrase-sub .sub-ru { color: var(--ink); }  /* русский чуть заметнее транскрипции */
 .btn-play {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: none;
   background: var(--accent-soft);
   color: var(--accent);
-  font-size: 19px;
+  font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -215,7 +209,6 @@ body {
 }
 .btn-play:active { transform: scale(0.9); }
 .btn-play.is-playing { background: var(--accent); color: #fff; }
-.phrase-card { cursor: pointer; } /* вся карточка кликабельна → полный экран */
 
 /* ===== Полноэкранный показ фразы ===== */
 .fullscreen {
@@ -254,6 +247,7 @@ body {
   margin-bottom: 24px;
 }
 .fs-zh.short { font-size: clamp(96px, 34vw, 360px); }
-.fs-read { font-size: 23px; color: var(--ink); margin-bottom: 28px; }
+.fs-read { font-size: 23px; color: var(--ink); margin-bottom: 6px; }
+.fs-pinyin { font-size: 17px; color: var(--muted); font-style: italic; margin-bottom: 26px; }
 .fs-play { width: 64px; height: 64px; font-size: 28px; }
 .fs-hint { position: absolute; bottom: 28px; font-size: 13px; color: var(--muted); }
